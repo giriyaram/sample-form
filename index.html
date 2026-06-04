@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Booking Form</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+      width: 100%;
+      max-width: 720px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #e53935, #b71c1c);
+      padding: 32px 40px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .card-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .card-header p {
+      margin-top: 6px;
+      font-size: 0.9rem;
+      opacity: 0.85;
+    }
+
+    .card-body {
+      padding: 36px 40px;
+    }
+
+    /* ── Section labels ── */
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #b71c1c;
+      margin: 28px 0 14px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #fce4ec;
+    }
+
+    .section-title:first-of-type { margin-top: 0; }
+
+    /* ── Grid rows ── */
+    .row {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .row.cols-2  { grid-template-columns: 1fr 1fr; }
+    .row.cols-3  { grid-template-columns: 1fr 1fr 1fr; }
+    .row.cols-1  { grid-template-columns: 1fr; }
+
+    /* ── Field ── */
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #37474f;
+    }
+
+    label span.req { color: #e53935; margin-left: 2px; }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"] {
+      padding: 11px 14px;
+      border: 1.5px solid #cfd8dc;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #263238;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      background: #fafafa;
+    }
+
+    input:focus {
+      border-color: #e53935;
+      box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.12);
+      background: #fff;
+    }
+
+    input.error { border-color: #e53935; background: #fff8f8; }
+    .error-msg { font-size: 0.75rem; color: #e53935; display: none; }
+    input.error + .error-msg { display: block; }
+
+    /* ── Upload field ── */
+    .upload-box {
+      border: 2px dashed #cfd8dc;
+      border-radius: 8px;
+      padding: 18px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: #fafafa;
+      position: relative;
+    }
+
+    .upload-box:hover { border-color: #e53935; background: #fff8f8; }
+    .upload-box.has-file { border-color: #43a047; background: #f1f8e9; }
+
+    .upload-box input[type="file"] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .upload-icon { font-size: 1.6rem; margin-bottom: 6px; display: block; }
+    .upload-label { font-size: 0.8rem; font-weight: 600; color: #546e7a; }
+    .upload-label span { color: #e53935; }
+    .upload-hint { font-size: 0.7rem; color: #90a4ae; margin-top: 3px; }
+    .file-name { font-size: 0.75rem; color: #43a047; margin-top: 4px; font-weight: 600; display: none; }
+    .upload-box.has-file .file-name { display: block; }
+    .upload-box.has-file .upload-label,
+    .upload-box.has-file .upload-hint { display: none; }
+
+    /* ── CAPTCHA ── */
+    .captcha-wrap {
+      background: #f5f5f5;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .captcha-question {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #263238;
+      background: #fff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: 1.5px solid #cfd8dc;
+      letter-spacing: 2px;
+      min-width: 120px;
+      text-align: center;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .captcha-wrap .field { flex: 1; min-width: 120px; }
+
+    .refresh-btn {
+      background: none;
+      border: 1.5px solid #cfd8dc;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 1rem;
+      color: #546e7a;
+      transition: border-color 0.2s, color 0.2s;
+      flex-shrink: 0;
+    }
+    .refresh-btn:hover { border-color: #e53935; color: #e53935; }
+
+    /* ── Checkbox ── */
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .checkbox-row input[type="checkbox"] {
+      margin-top: 2px;
+      accent-color: #e53935;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .checkbox-row label {
+      font-size: 0.82rem;
+      color: #546e7a;
+      font-weight: 400;
+      cursor: pointer;
+    }
+
+    /* ── Submit ── */
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #e53935, #b71c1c);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      margin-top: 24px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .submit-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .submit-btn:active { transform: translateY(0); }
+
+    /* ── Success banner ── */
+    .success-banner {
+      display: none;
+      background: #e8f5e9;
+      border: 1.5px solid #a5d6a7;
+      border-radius: 10px;
+      padding: 16px 20px;
+      text-align: center;
+      color: #2e7d32;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-top: 16px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 540px) {
+      .card-body { padding: 24px 20px; }
+      .card-header { padding: 24px 20px; }
+      .row.cols-2, .row.cols-3 { grid-template-columns: 1fr; }
+      .captcha-wrap { flex-direction: column; align-items: stretch; }
+      .captcha-question { min-width: unset; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-header">
+    <h1>Booking Form</h1>
+    <p>Please fill in all required details to complete your booking</p>
+  </div>
+
+  <div class="card-body">
+    <form id="bookingForm" novalidate>
+
+      <!-- ── Personal Information ── -->
+      <div class="section-title">Personal Information</div>
+
+      <div class="row cols-2">
+        <div class="field">
+          <label for="firstName">First Name <span class="req">*</span></label>
+          <input type="text" id="firstName" name="firstName" placeholder="Enter first name" />
+          <span class="error-msg">First name is required.</span>
+        </div>
+        <div class="field">
+          <label for="lastName">Last Name <span class="req">*</span></label>
+          <input type="text" id="lastName" name="lastName" placeholder="Enter last name" />
+          <span class="error-msg">Last name is required.</span>
+        </div>
+      </div>
+
+      <div class="row cols-2">
+        <div class="field">
+          <label for="phone">Mobile Number <span class="req">*</span></label>
+          <input type="tel" id="phone" name="phone" placeholder="10-digit mobile number" maxlength="10" />
+          <span class="error-msg">Enter a valid 10-digit number.</span>
+        </div>
+        <div class="field">
+          <label for="email">Email ID <span class="req">*</span></label>
+          <input type="email" id="email" name="email" placeholder="example@email.com" />
+          <span class="error-msg">Enter a valid email address.</span>
+        </div>
+      </div>
+
+      <!-- ── Identity Details ── -->
+      <div class="section-title">Identity Details</div>
+
+      <div class="row cols-3">
+        <div class="field">
+          <label for="aadhar">Aadhar Number <span class="req">*</span></label>
+          <input type="text" id="aadhar" name="aadhar" placeholder="XXXX XXXX XXXX" maxlength="14" />
+          <span class="error-msg">Enter a valid 12-digit Aadhar.</span>
+        </div>
+        <div class="field">
+          <label for="pan">PAN Number <span class="req">*</span></label>
+          <input type="text" id="pan" name="pan" placeholder="ABCDE1234F" maxlength="10" style="text-transform:uppercase;" />
+          <span class="error-msg">Enter a valid PAN (e.g. ABCDE1234F).</span>
+        </div>
+        <div class="field">
+          <label for="cheque">Cheque Number <span class="req">*</span></label>
+          <input type="text" id="cheque" name="cheque" placeholder="6-digit cheque no." maxlength="6" />
+          <span class="error-msg">Enter a valid 6-digit cheque number.</span>
+        </div>
+      </div>
+
+      <!-- ── Document Upload ── -->
+      <div class="section-title">Document Upload</div>
+
+      <div class="row cols-3">
+        <!-- Aadhar Upload -->
+        <div class="field">
+          <label>Aadhar Card <span class="req">*</span></label>
+          <div class="upload-box" id="aadharUploadBox">
+            <input type="file" id="aadharFile" name="aadharFile" accept=".pdf,.jpg,.jpeg,.png" />
+            <span class="upload-icon">🪪</span>
+            <div class="upload-label">Upload Aadhar<br /><span>Browse file</span></div>
+            <div class="upload-hint">PDF / JPG / PNG · Max 5 MB</div>
+            <div class="file-name" id="aadharFileName"></div>
+          </div>
+          <span class="error-msg" id="aadharFileErr" style="display:none;">Please upload Aadhar card.</span>
+        </div>
+
+        <!-- PAN Upload -->
+        <div class="field">
+          <label>PAN Card <span class="req">*</span></label>
+          <div class="upload-box" id="panUploadBox">
+            <input type="file" id="panFile" name="panFile" accept=".pdf,.jpg,.jpeg,.png" />
+            <span class="upload-icon">💳</span>
+            <div class="upload-label">Upload PAN<br /><span>Browse file</span></div>
+            <div class="upload-hint">PDF / JPG / PNG · Max 5 MB</div>
+            <div class="file-name" id="panFileName"></div>
+          </div>
+          <span class="error-msg" id="panFileErr" style="display:none;">Please upload PAN card.</span>
+        </div>
+
+        <!-- Cheque Upload -->
+        <div class="field">
+          <label>Cancelled Cheque <span class="req">*</span></label>
+          <div class="upload-box" id="chequeUploadBox">
+            <input type="file" id="chequeFile" name="chequeFile" accept=".pdf,.jpg,.jpeg,.png" />
+            <span class="upload-icon">🏦</span>
+            <div class="upload-label">Upload Cheque<br /><span>Browse file</span></div>
+            <div class="upload-hint">PDF / JPG / PNG · Max 5 MB</div>
+            <div class="file-name" id="chequeFileName"></div>
+          </div>
+          <span class="error-msg" id="chequeFileErr" style="display:none;">Please upload cancelled cheque.</span>
+        </div>
+      </div>
+
+      <!-- ── CAPTCHA ── -->
+      <div class="section-title">Security Verification</div>
+
+      <div class="captcha-wrap">
+        <div class="captcha-question" id="captchaQuestion" aria-label="CAPTCHA question"></div>
+        <button type="button" class="refresh-btn" onclick="refreshCaptcha()" title="Refresh CAPTCHA">&#x21BA;</button>
+        <div class="field">
+          <label for="captchaAnswer">Enter Answer <span class="req">*</span></label>
+          <input type="number" id="captchaAnswer" name="captchaAnswer" placeholder="Type your answer" />
+          <span class="error-msg" id="captchaErr">Incorrect answer. Please try again.</span>
+        </div>
+      </div>
+
+      <!-- ── Terms ── -->
+      <div class="checkbox-row" style="margin-top:20px;">
+        <input type="checkbox" id="terms" name="terms" />
+        <label for="terms">I confirm that all information provided is accurate and I agree to the <strong>Terms &amp; Conditions</strong> and <strong>Privacy Policy</strong>.</label>
+      </div>
+      <span class="error-msg" id="termsErr" style="display:none;">You must agree to the terms to proceed.</span>
+
+      <!-- ── Submit ── -->
+      <button type="submit" class="submit-btn">Submit Booking</button>
+
+      <div class="success-banner" id="successBanner">
+        ✅ Your booking has been submitted successfully! We will contact you shortly.
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+  /* ── CAPTCHA ── */
+  let captchaAnswer = 0;
+
+  function refreshCaptcha() {
+    const a = Math.floor(Math.random() * 20) + 1;
+    const b = Math.floor(Math.random() * 20) + 1;
+    const ops = ['+', '-', '×'];
+    const op  = ops[Math.floor(Math.random() * ops.length)];
+    let question, answer;
+    if (op === '+')      { question = `${a} + ${b} = ?`; answer = a + b; }
+    else if (op === '-') { const x = Math.max(a,b), y = Math.min(a,b); question = `${x} − ${y} = ?`; answer = x - y; }
+    else                 { const small = Math.floor(Math.random()*9)+1, big = Math.floor(Math.random()*9)+1;
+                           question = `${small} × ${big} = ?`; answer = small * big; }
+    document.getElementById('captchaQuestion').textContent = question;
+    captchaAnswer = answer;
+    document.getElementById('captchaAnswer').value = '';
+    document.getElementById('captchaAnswer').classList.remove('error');
+    document.getElementById('captchaErr').style.display = 'none';
+  }
+  refreshCaptcha();
+
+  /* ── Upload preview ── */
+  function bindUpload(inputId, boxId, nameId) {
+    const input = document.getElementById(inputId);
+    const box   = document.getElementById(boxId);
+    const name  = document.getElementById(nameId);
+    input.addEventListener('change', () => {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 5 * 1024 * 1024) {
+          alert('File size must be under 5 MB.');
+          input.value = '';
+          box.classList.remove('has-file');
+          return;
+        }
+        name.textContent = '✓ ' + file.name;
+        box.classList.add('has-file');
+      }
+    });
+  }
+  bindUpload('aadharFile',  'aadharUploadBox',  'aadharFileName');
+  bindUpload('panFile',     'panUploadBox',     'panFileName');
+  bindUpload('chequeFile',  'chequeUploadBox',  'chequeFileName');
+
+  /* ── Aadhar number formatting (XXXX XXXX XXXX) ── */
+  document.getElementById('aadhar').addEventListener('input', function () {
+    let v = this.value.replace(/\D/g, '').slice(0, 12);
+    this.value = v.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
+  });
+
+  /* ── PAN uppercase ── */
+  document.getElementById('pan').addEventListener('input', function () {
+    this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+  });
+
+  /* ── Phone: digits only ── */
+  document.getElementById('phone').addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 10);
+  });
+
+  /* ── Cheque: digits only ── */
+  document.getElementById('cheque').addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 6);
+  });
+
+  /* ── Validation helpers ── */
+  function setError(id, condition) {
+    const el = document.getElementById(id);
+    const siblings = el.parentElement.querySelectorAll('.error-msg');
+    if (condition) { el.classList.add('error'); siblings.forEach(s => s.style.display = 'block'); }
+    else           { el.classList.remove('error'); siblings.forEach(s => s.style.display = 'none'); }
+    return condition;
+  }
+
+  function validateForm() {
+    let hasError = false;
+
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName  = document.getElementById('lastName').value.trim();
+    const phone     = document.getElementById('phone').value.trim();
+    const email     = document.getElementById('email').value.trim();
+    const aadhar    = document.getElementById('aadhar').value.replace(/\s/g, '');
+    const pan       = document.getElementById('pan').value.trim();
+    const cheque    = document.getElementById('cheque').value.trim();
+    const captcha   = parseInt(document.getElementById('captchaAnswer').value, 10);
+    const terms     = document.getElementById('terms').checked;
+
+    if (setError('firstName', !firstName)) hasError = true;
+    if (setError('lastName',  !lastName))  hasError = true;
+    if (setError('phone',  !/^\d{10}$/.test(phone)))   hasError = true;
+    if (setError('email',  !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) hasError = true;
+    if (setError('aadhar', !/^\d{12}$/.test(aadhar)))  hasError = true;
+    if (setError('pan',    !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan))) hasError = true;
+    if (setError('cheque', !/^\d{6}$/.test(cheque)))   hasError = true;
+
+    /* Upload validation */
+    ['aadhar', 'pan', 'cheque'].forEach(key => {
+      const file  = document.getElementById(key + 'File');
+      const errEl = document.getElementById(key + 'FileErr');
+      if (!file.files || !file.files[0]) { errEl.style.display = 'block'; hasError = true; }
+      else errEl.style.display = 'none';
+    });
+
+    /* CAPTCHA */
+    const captchaInput = document.getElementById('captchaAnswer');
+    const captchaErrEl = document.getElementById('captchaErr');
+    if (isNaN(captcha) || captcha !== captchaAnswer) {
+      captchaInput.classList.add('error');
+      captchaErrEl.style.display = 'block';
+      hasError = true;
+    } else {
+      captchaInput.classList.remove('error');
+      captchaErrEl.style.display = 'none';
+    }
+
+    /* Terms */
+    const termsErrEl = document.getElementById('termsErr');
+    if (!terms) { termsErrEl.style.display = 'block'; hasError = true; }
+    else termsErrEl.style.display = 'none';
+
+    return !hasError;
+  }
+
+  /* ── Submit ── */
+  document.getElementById('bookingForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (validateForm()) {
+      document.getElementById('successBanner').style.display = 'block';
+      document.getElementById('bookingForm').querySelectorAll('input, button').forEach(el => el.disabled = true);
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+  });
+
+  /* ── Live clear errors on input ── */
+  document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"]').forEach(el => {
+    el.addEventListener('input', () => {
+      el.classList.remove('error');
+      el.parentElement.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+    });
+  });
+</script>
+</body>
+</html>
